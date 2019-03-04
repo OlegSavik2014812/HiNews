@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Rss</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="chooser_title">Choose app for share</string>
+    <string name="today_title">Choose app for share</string>
+    <string name="yesterday_title">Choose app for share</string>
+    <string name="other_title">Choose app for share</string>
+
+</resources>
