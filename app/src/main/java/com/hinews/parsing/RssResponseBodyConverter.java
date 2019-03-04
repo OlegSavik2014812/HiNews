@@ -18,10 +18,10 @@ import okhttp3.ResponseBody;
 import retrofit2.Converter;
 
 public class RssResponseBodyConverter implements Converter<ResponseBody, RssFeed> {
-    private XmlRssParser parser;
+    private RssSaxHandler handler;
 
     RssResponseBodyConverter() {
-        parser = XmlRssParser.getInstance();
+        handler = RssSaxHandler.getInstance();
     }
 
     @Override
@@ -31,10 +31,10 @@ public class RssResponseBodyConverter implements Converter<ResponseBody, RssFeed
             SAXParserFactory parserFactory = SAXParserFactory.newInstance();
             SAXParser saxParser = parserFactory.newSAXParser();
             XMLReader xmlReader = saxParser.getXMLReader();
-            xmlReader.setContentHandler(parser);
+            xmlReader.setContentHandler(handler);
             InputSource inputSource = new InputSource(value.charStream());
             xmlReader.parse(inputSource);
-            list = parser.getItems();
+            list = handler.getItems();
         } catch (Exception e) {
             list = Collections.emptyList();
         }

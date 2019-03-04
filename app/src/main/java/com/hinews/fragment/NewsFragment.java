@@ -13,14 +13,13 @@ import android.view.ViewGroup;
 import com.hinews.R;
 import com.hinews.adapter.NewsRecyclerViewAdapter;
 import com.hinews.item.RssItem;
-import com.hinews.manager.NewsManager;
-import com.hinews.parsing.RssListPageSorter;
+import com.hinews.manager.SortedNewsManager;
 
 import java.util.List;
+import java.util.Optional;
 
 public class NewsFragment extends Fragment {
-    public static final String EXTRA_POSITION = "item_position";
-    public static final String EXTRA_MAIN_PAGE_NUMBER = "page_number";
+    private static final String EXTRA_POSITION = "item_position";
     private int pageNumber;
 
     public static NewsFragment newInstance(int position) {
@@ -34,7 +33,7 @@ public class NewsFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pageNumber = getArguments().getInt(EXTRA_POSITION);
+        pageNumber = Optional.ofNullable(getArguments()).map(bundle -> bundle.getInt(EXTRA_POSITION)).orElse(0);
     }
 
     @Override
@@ -42,8 +41,7 @@ public class NewsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment, null);
         RecyclerView recyclerView = view.findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        NewsManager instance = NewsManager.getInstance();
-        List<RssItem> rssItems = RssListPageSorter.sort(instance.getRssItems(), pageNumber);
+        List<RssItem> rssItems = SortedNewsManager.getPagePositionNews(pageNumber);
         NewsRecyclerViewAdapter mHiNewsRecyclerViewAdapter = new NewsRecyclerViewAdapter(rssItems, getContext(), pageNumber);
         recyclerView.setAdapter(mHiNewsRecyclerViewAdapter);
         return view;

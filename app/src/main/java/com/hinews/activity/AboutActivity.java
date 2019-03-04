@@ -18,15 +18,16 @@ import com.hinews.R;
 import com.hinews.adapter.ViewPagerContentAdapter;
 import com.hinews.item.RssItem;
 import com.hinews.manager.NewsManager;
-import com.hinews.parsing.RssListPageSorter;
+import com.hinews.manager.SortedNewsManager;
 
 import java.util.List;
-
-import static com.hinews.fragment.NewsFragment.EXTRA_MAIN_PAGE_NUMBER;
-import static com.hinews.fragment.NewsFragment.EXTRA_POSITION;
+import java.util.Objects;
 
 public class AboutActivity extends AppCompatActivity {
-    private static final String type = "text/plain";
+    private static final String EMPTY_STRING = "";
+    private static final String TYPE = "text/plain";
+    private static final String EXTRA_POSITION = "item_position";
+    private static final String EXTRA_MAIN_PAGE_NUMBER = "page_number";
     private ImageView imageContent;
     private List<RssItem> rssItems;
     private String message;
@@ -49,15 +50,15 @@ public class AboutActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_aboutt);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle(" ");
+        toolbar.setTitle(EMPTY_STRING);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+
         ViewPager viewPager = findViewById(R.id.viewpager);
         imageContent = findViewById(R.id.image_news_content);
         int position = getIntent().getIntExtra(EXTRA_POSITION, 0);
         int pageNumber = getIntent().getIntExtra(EXTRA_MAIN_PAGE_NUMBER, 0);
-        NewsManager instance = NewsManager.getInstance();
-        rssItems = RssListPageSorter.sort(instance.getRssItems(), pageNumber);
+        rssItems = SortedNewsManager.getPagePositionNews(pageNumber);
         RssItem rssItem = rssItems.get(position);
 
         Glide.with(this)
@@ -76,9 +77,11 @@ public class AboutActivity extends AppCompatActivity {
                 imageContent.setImageBitmap(bitmap);
             }
         };
+
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                //unnecessary implementation
             }
 
             @Override
@@ -91,6 +94,7 @@ public class AboutActivity extends AppCompatActivity {
 
             @Override
             public void onPageScrollStateChanged(int state) {
+                //unnecessary implementation
             }
         });
     }
@@ -104,13 +108,13 @@ public class AboutActivity extends AppCompatActivity {
         NewsManager.getInstance().init(new NewsManager.LoadRssNewsListener() {
             @Override
             public void start() {
+                //unnecessary implementation
             }
 
             @Override
             public void success() {
                 Intent intent = new Intent(Intent.ACTION_SEND);
-
-                intent.setType(type);
+                intent.setType(TYPE);
                 intent.putExtra(Intent.EXTRA_TEXT, message);
                 String chosenTitle = getString(R.string.chooser_title);
                 Intent chosenIntent = Intent.createChooser(intent, chosenTitle);
@@ -119,6 +123,7 @@ public class AboutActivity extends AppCompatActivity {
 
             @Override
             public void failure() {
+                //unnecessary implementation
             }
         });
     }

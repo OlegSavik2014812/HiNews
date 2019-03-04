@@ -8,12 +8,11 @@ import org.xml.sax.helpers.DefaultHandler;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class XmlRssParser extends DefaultHandler {
+public final class RssSaxHandler extends DefaultHandler {
     private static final String OPEN_P = "<p>";
     private static final String CLOSE_P = "</p>";
     private static final String DATE_PATTERN = "EEE, d MMM yyyy HH:mm:ss Z";
@@ -30,7 +29,11 @@ public class XmlRssParser extends DefaultHandler {
     private static final String TAG_PUBLISH_DATE = "pubdate";
     private static final String TAG_CONTENT = "encoded";
     private static final String TAG_CREATOR = "creator";
-    private static final String TAG_LANGUAGE = "language";
+    private static final ReentrantLock LOCK = new ReentrantLock();
+    private static RssSaxHandler instance;
+    private static AtomicBoolean isInitialized = new AtomicBoolean(false);
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN);
+
     private boolean isItem;
     private boolean isElement;
     private boolean isTitle;
@@ -38,26 +41,22 @@ public class XmlRssParser extends DefaultHandler {
     private boolean isLink;
     private boolean isContent;
     private boolean isCreator;
-    private boolean isLanguage;
     private boolean isDate;
+
+    private StringBuilder content;
     private String title;
     private String link;
     private String date;
     private String description;
-    private String content;
     private String creator;
-    private String language;
-    private List<RssItem> rssItems;
-    private DateTimeFormatter formatter;
-    private static XmlRssParser instance;
-    private static AtomicBoolean isInitialized = new AtomicBoolean(false);
-    private static final ReentrantLock LOCK = new ReentrantLock();
 
-    static XmlRssParser getInstance() {
+    private List<RssItem> rssItems;
+
+    static RssSaxHandler getInstance() {
         if (!isInitialized.get()) {
             LOCK.lock();
             if (!isInitialized.get()) {
-                instance = new XmlRssParser();
+                instance = new RssSaxHandler();
                 isInitialized.set(true);
             }
             LOCK.unlock();
@@ -65,8 +64,7 @@ public class XmlRssParser extends DefaultHandler {
         return instance;
     }
 
-    private XmlRssParser() {
-        formatter = DateTimeFormatter.ofPattern(DATE_PATTERN);
+    private RssSaxHandler() {
     }
 
     @Override
@@ -84,9 +82,6 @@ public class XmlRssParser extends DefaultHandler {
             return;
         }
         switch (localName.toLowerCase()) {
-            case TAG_ITEM:
-                isItem = true;
-                break;
             case TAG_TITLE:
                 if (!qName.contains(TAG_MEDIA)) {
                     isTitle = true;
@@ -109,15 +104,11 @@ public class XmlRssParser extends DefaultHandler {
                 break;
             case TAG_CONTENT:
                 isContent = true;
-                content = EMPTY_STRING;
+                content = new StringBuilder();
                 break;
             case TAG_CREATOR:
                 isCreator = true;
                 creator = EMPTY_STRING;
-                break;
-            case TAG_LANGUAGE:
-                isLanguage = true;
-                language = EMPTY_STRING;
                 break;
             default:
                 break;
@@ -132,15 +123,8 @@ public class XmlRssParser extends DefaultHandler {
         }
         switch (localName.toLowerCase()) {
             case TAG_ITEM:
-                RssItem rssItem = RssItem.newBuilder().setTitle(title.trim()).setContent(getContent(content)).setCreator(creator).setDescription(description).setImage(getImg(content)).setPublishDate(getDate(date)).setLink(link).build();
-                rssItems.add(rssItem);
-                title = EMPTY_STRING;
-                link = EMPTY_STRING;
-                date = EMPTY_STRING;
-                description = EMPTY_STRING;
-                content = EMPTY_STRING;
-                creator = EMPTY_STRING;
-                language = EMPTY_STRING;
+                rssItems.add(buildItem());
+                resetBufferVariables();
                 break;
             case TAG_TITLE:
                 if (!qName.contains(TAG_MEDIA)) {
@@ -164,9 +148,6 @@ public class XmlRssParser extends DefaultHandler {
                 break;
             case TAG_CREATOR:
                 isCreator = false;
-                break;
-            case TAG_LANGUAGE:
-                isLanguage = false;
                 break;
             default:
                 break;
@@ -192,17 +173,30 @@ public class XmlRssParser extends DefaultHandler {
             link = link + buffer;
         }
         if (isContent) {
-            content = content + buffer;
+            content = content.append(buffer);
         }
         if (isCreator) {
             creator = creator + buffer;
         }
-        if (isLanguage) {
-            language = language + buffer;
-        }
         if (isDate) {
             date = date + buffer;
         }
+    }
+
+    List<RssItem> getItems() {
+        return rssItems;
+    }
+
+    private RssItem buildItem() {
+        return RssItem.newBuilder()
+                .setTitle(title.trim())
+                .setContent(getContent(content.toString()))
+                .setCreator(creator)
+                .setDescription(description)
+                .setImage(getImg(content.toString()))
+                .setPublishDate(getDate(date))
+                .setLink(link)
+                .build();
     }
 
     private String getImg(String content) {
@@ -230,14 +224,19 @@ public class XmlRssParser extends DefaultHandler {
     private LocalDate getDate(String dateString) {
         LocalDate localDate;
         try {
-            localDate = LocalDate.parse(dateString, formatter);
+            localDate = LocalDate.parse(dateString, DATE_TIME_FORMATTER);
         } catch (Exception e) {
             localDate = LocalDate.of(1111, 11, 11);
         }
         return localDate;
     }
 
-    List<RssItem> getItems() {
-        return Collections.unmodifiableList(rssItems);
+    private void resetBufferVariables() {
+        title = EMPTY_STRING;
+        link = EMPTY_STRING;
+        date = EMPTY_STRING;
+        description = EMPTY_STRING;
+        content = new StringBuilder();
+        creator = EMPTY_STRING;
     }
 }

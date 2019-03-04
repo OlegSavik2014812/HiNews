@@ -17,10 +17,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
-            app:contentScrim="@color/primary_zat"
+            app:contentScrim="@color/primaryZat"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <ImageView
+               android:contentDescription="@string/image_descr"
                 android:id="@+id/image_news_content"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"

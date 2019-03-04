@@ -2,13 +2,10 @@ package com.hinews.manager;
 
 import android.support.annotation.NonNull;
 
-import com.hinews.service.RssService;
 import com.hinews.item.RssFeed;
-import com.hinews.item.RssItem;
 import com.hinews.parsing.RssConverterFactory;
+import com.hinews.service.RssService;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
@@ -25,7 +22,6 @@ public class NewsManager {
     private static final ReentrantLock LOCK = new ReentrantLock();
     private static AtomicBoolean isInitialized = new AtomicBoolean(false);
     private static NewsManager instance;
-    private List<RssItem> rssItems;
 
     public static NewsManager getInstance() {
         if (!isInitialized.get()) {
@@ -43,18 +39,26 @@ public class NewsManager {
         listener.start();
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(interceptor)
+                .build();
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .client(client)
                 .addConverterFactory(RssConverterFactory.create())
                 .client(new OkHttpClient())
                 .build();
+
         RssService service = retrofit.create(RssService.class);
         service.getRss().enqueue(new Callback<RssFeed>() {
             @Override
             public void onResponse(@NonNull Call<RssFeed> call, @NonNull Response<RssFeed> response) {
-                rssItems = Optional.of(response).map(Response::body).map(RssFeed::getItems).orElseGet(Collections::emptyList);
+                Optional.of(response)
+                        .map(Response::body)
+                        .map(RssFeed::getItems)
+                        .ifPresent(SortedNewsManager::init);
                 listener.success();
             }
 
@@ -63,10 +67,6 @@ public class NewsManager {
                 listener.failure();
             }
         });
-    }
-
-    public List<RssItem> getRssItems() {
-        return rssItems;
     }
 
     public interface LoadRssNewsListener {

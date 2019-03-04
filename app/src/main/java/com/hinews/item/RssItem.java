@@ -87,9 +87,4 @@ public class RssItem implements Serializable {
             return RssItem.this;
         }
     }
-
-    @Override
-    public String toString() {
-        return "RssItem{" + "title='" + title + '\'' + ", link='" + link + '\'' + ", image='" + image + '\'' + ", publishDate=" + publishDate + ", description='" + description + '\'' + ", content='" + content + '\'' + ", creator='" + creator + '\'' + '}';
-    }
 }

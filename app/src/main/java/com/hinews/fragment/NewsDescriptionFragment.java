@@ -15,19 +15,17 @@ import android.widget.TextView;
 
 import com.hinews.R;
 import com.hinews.item.RssItem;
-import com.hinews.manager.NewsManager;
-import com.hinews.parsing.RssListPageSorter;
+import com.hinews.manager.SortedNewsManager;
 
 import java.util.List;
 import java.util.function.BiConsumer;
-
-import static com.hinews.fragment.NewsFragment.EXTRA_MAIN_PAGE_NUMBER;
 
 public class NewsDescriptionFragment extends Fragment {
     private static final String CSS_STYLE = "<style> img{display: inline; height: auto; max-width: 100%;} iframe{display: inline; height: auto; max-width: 100%;}</style>";
     private static final String MIME_TYPE = "text/html; charset=utf-8";
     private static final String ENCODING = "UTF-8";
     private static final String EXTRA_POSITION = "item_position";
+    private static final String EXTRA_MAIN_PAGE_NUMBER = "page_number";
     private List<RssItem> rssItems;
     private int pageNumber;
 
@@ -45,8 +43,7 @@ public class NewsDescriptionFragment extends Fragment {
         super.onCreate(savedInstanceState);
         pageNumber = getArguments().getInt(EXTRA_POSITION);
         int mainPageNumber = getArguments().getInt(EXTRA_MAIN_PAGE_NUMBER);
-        NewsManager instance = NewsManager.getInstance();
-        rssItems = RssListPageSorter.sort(instance.getRssItems(), mainPageNumber);
+        rssItems = SortedNewsManager.getPagePositionNews(mainPageNumber);
     }
 
     @Override

@@ -11,8 +11,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.hinews.activity.AboutActivity;
 import com.hinews.R;
+import com.hinews.activity.AboutActivity;
 import com.hinews.item.RssItem;
 
 import java.util.List;
@@ -21,7 +21,6 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerVi
     private List<RssItem> list;
     private Context context;
     private int pageNumber;
-
 
     static class HiNewsViewHolder extends RecyclerView.ViewHolder {
         private TextView titleTextView;
@@ -40,13 +39,11 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerVi
         }
     }
 
-
     public NewsRecyclerViewAdapter(List<RssItem> list, Context context, int pageNumber) {
         this.context = context;
         this.list = list;
         this.pageNumber = pageNumber;
     }
-
 
     @NonNull
     @Override
@@ -62,7 +59,12 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerVi
         holder.descriptionTextView.setText(Html.fromHtml(item.getDescription(), 0));
         holder.pubDateTextView.setText(item.getPublishDate().toString());
         holder.creatorView.setText(item.getCreator());
-        Glide.with(holder.itemView.getContext()).load(item.getImage()).centerCrop().into(holder.imageView);
+
+        Glide.with(holder.itemView.getContext())
+                .load(item.getImage())
+                .centerCrop()
+                .into(holder.imageView);
+
         holder.itemView.setOnClickListener(view -> AboutActivity.start(context, position, pageNumber));
     }
 
