@@ -62,7 +62,7 @@ public class AboutActivity extends AppCompatActivity {
         RssItem rssItem = rssItems.get(position);
 
         Glide.with(this)
-                .load(rssItem.getImage())
+                .load(rssItem.getPreviewImage())
                 .centerCrop()
                 .into(imageContent);
         message = rssItem.getLink();
@@ -87,7 +87,7 @@ public class AboutActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 Glide.with(AboutActivity.this)
-                        .load(rssItems.get(position).getImage())
+                        .load(rssItems.get(position).getPreviewImage())
                         .asBitmap()
                         .into(target);
             }

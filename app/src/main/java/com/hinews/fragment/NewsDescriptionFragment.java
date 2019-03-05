@@ -49,27 +49,38 @@ public class NewsDescriptionFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_rss_news_description, null);
-        RssItem rssItem = rssItems.get(pageNumber);
         BiConsumer<TextView, String> consumer = TextView::setText;
+        BiConsumer<WebView, String> loadContent = (webView, s) -> webView.loadData(CSS_STYLE + s, MIME_TYPE, ENCODING);
+
+        RssItem rssItem = rssItems.get(pageNumber);
         TextView dateView = view.findViewById(R.id.pubdate_news_content);
         TextView creatorView = view.findViewById(R.id.creator);
         TextView titleView = view.findViewById(R.id.title_content);
+
         String date = rssItem.getPublishDate().toString();
         String creator = rssItem.getCreator();
         String title = rssItem.getTitle();
+
         consumer.accept(dateView, date);
         consumer.accept(creatorView, creator);
         consumer.accept(titleView, title);
+
+        WebView webView = getWebView(view);
+        String content = rssItem.getContent();
+        loadContent.accept(webView, content);
+        return view;
+    }
+
+    private WebView getWebView(View view) {
         WebView content = view.findViewById(R.id.content_news_content);
         content.setWebViewClient(new WebViewClient());
         content.setWebChromeClient(new WebChromeClient());
         content.getSettings().setJavaScriptEnabled(true);
-        content.loadData(CSS_STYLE + rssItem.getContent(), MIME_TYPE, ENCODING);
         content.setOnTouchListener((v, event) -> onTouch(event));
-        return view;
+        return content;
     }
 
-    private static boolean onTouch(MotionEvent event) {
+    private boolean onTouch(MotionEvent event) {
         return event.getAction() == MotionEvent.ACTION_MOVE;
     }
 }

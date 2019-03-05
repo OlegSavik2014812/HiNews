@@ -11,15 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class RssSaxHandler extends DefaultHandler {
-    private static final String OPEN_P = "<p>";
-    private static final String CLOSE_P = "</p>";
+    private static final String IMAGE_URL_REGEX = "\\b(https?|ftp|file):[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|](?:.jpg)|(?:.jpeg)|(?:.png)";
     private static final String DATE_PATTERN = "EEE, d MMM yyyy HH:mm:ss Z";
-    private static final String SRC_PATTERN = "src=\"";
     private static final String NEW_LINE = "\n";
     private static final String EMPTY_STRING = "";
-    private static final String IMG_ATTR = "img";
+
     private static final String TAG_ITEM = "item";
     private static final String TAG_TITLE = "title";
     private static final String TAG_MEDIA = "media";
@@ -29,10 +29,13 @@ public final class RssSaxHandler extends DefaultHandler {
     private static final String TAG_PUBLISH_DATE = "pubdate";
     private static final String TAG_CONTENT = "encoded";
     private static final String TAG_CREATOR = "creator";
+
     private static final ReentrantLock LOCK = new ReentrantLock();
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN);
+    private static final Pattern URL_PATTERN = Pattern.compile(IMAGE_URL_REGEX);
+
     private static RssSaxHandler instance;
     private static AtomicBoolean isInitialized = new AtomicBoolean(false);
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN);
 
     private boolean isItem;
     private boolean isElement;
@@ -188,33 +191,26 @@ public final class RssSaxHandler extends DefaultHandler {
     }
 
     private RssItem buildItem() {
+        String stringContent = this.content.toString();
         return RssItem.newBuilder()
                 .setTitle(title.trim())
-                .setContent(getContent(content.toString()))
+                .setContent(getContent(stringContent))
                 .setCreator(creator)
                 .setDescription(description)
-                .setImage(getImg(content.toString()))
+                .setImage(getImg(stringContent))
                 .setPublishDate(getDate(date))
                 .setLink(link)
                 .build();
     }
 
     private String getImg(String content) {
-        if (content.contains(IMG_ATTR) && content.contains(SRC_PATTERN)) {
-            String[] split = content.split(OPEN_P);
-            String[] split1 = split[1].split(CLOSE_P);
-            String img = split1[0];
-            int ix = img.indexOf(SRC_PATTERN);
-            return img.substring(ix + 5, img.indexOf("\" alt"));
-        }
-        return EMPTY_STRING;
+        Matcher matcher = URL_PATTERN.matcher(content);
+        return matcher.find() ? matcher.group() : EMPTY_STRING;
     }
 
     private String getContent(String content) {
         String[] parts = content.split(NEW_LINE, 2);
-        String part1 = parts[1];
-        String[] parts1 = part1.split(NEW_LINE, 2);
-        return parts1[1];
+        return parts[1];
     }
 
     private String removeNewLine(String s) {

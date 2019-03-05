@@ -22,12 +22,12 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerVi
     private Context context;
     private int pageNumber;
 
-    static class HiNewsViewHolder extends RecyclerView.ViewHolder {
+    class HiNewsViewHolder extends RecyclerView.ViewHolder {
         private TextView titleTextView;
         private TextView descriptionTextView;
         private TextView pubDateTextView;
         private ImageView imageView;
-        private TextView creatorView;
+        private TextView creatorTextView;
 
         HiNewsViewHolder(View view) {
             super(view);
@@ -35,7 +35,7 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerVi
             descriptionTextView = view.findViewById(R.id.description_news);
             pubDateTextView = view.findViewById(R.id.pubdate_news);
             imageView = view.findViewById(R.id.image_news);
-            creatorView = view.findViewById(R.id.creator_news);
+            creatorTextView = view.findViewById(R.id.creator_news);
         }
     }
 
@@ -58,10 +58,10 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerVi
         holder.titleTextView.setText(item.getTitle());
         holder.descriptionTextView.setText(Html.fromHtml(item.getDescription(), 0));
         holder.pubDateTextView.setText(item.getPublishDate().toString());
-        holder.creatorView.setText(item.getCreator());
+        holder.creatorTextView.setText(item.getCreator());
 
         Glide.with(holder.itemView.getContext())
-                .load(item.getImage())
+                .load(item.getPreviewImage())
                 .centerCrop()
                 .into(holder.imageView);
 

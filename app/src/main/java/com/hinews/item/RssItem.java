@@ -6,7 +6,7 @@ import java.time.LocalDate;
 public class RssItem implements Serializable {
     private String title;
     private String link;
-    private String image;
+    private String previewImage;
     private LocalDate publishDate;
     private String description;
     private String content;
@@ -20,8 +20,8 @@ public class RssItem implements Serializable {
         return link;
     }
 
-    public String getImage() {
-        return image;
+    public String getPreviewImage() {
+        return previewImage;
     }
 
     public LocalDate getPublishDate() {
@@ -59,7 +59,7 @@ public class RssItem implements Serializable {
         }
 
         public RssItemBuilder setImage(String image) {
-            RssItem.this.image = image;
+            RssItem.this.previewImage = image;
             return this;
         }
 
