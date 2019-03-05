@@ -24,11 +24,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewSwitcher = findViewById(R.id.switcher);
+
         Toolbar toolbar = findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
+
         TabLayout tabLayout = findViewById(R.id.tab_layout_activity_main);
         viewPager = findViewById(R.id.main_activity_view_pager);
         tabLayout.setupWithViewPager(viewPager);
+
         viewPager.setOffscreenPageLimit(3);
         NewsManager.getInstance().init(new NewsManager.LoadRssNewsListener() {
             @Override

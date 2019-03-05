@@ -71,7 +71,7 @@ public class AboutActivity extends AppCompatActivity {
         viewPager.setAdapter(contentAdapter);
         viewPager.setCurrentItem(position);
 
-        final SimpleTarget target = new SimpleTarget<Bitmap>() {
+        SimpleTarget<Bitmap> target = new SimpleTarget<Bitmap>() {
             @Override
             public void onResourceReady(Bitmap bitmap, GlideAnimation glideAnimation) {
                 imageContent.setImageBitmap(bitmap);
@@ -90,6 +90,7 @@ public class AboutActivity extends AppCompatActivity {
                         .load(rssItems.get(position).getPreviewImage())
                         .asBitmap()
                         .into(target);
+
             }
 
             @Override

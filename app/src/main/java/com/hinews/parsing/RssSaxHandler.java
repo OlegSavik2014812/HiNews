@@ -32,7 +32,7 @@ public final class RssSaxHandler extends DefaultHandler {
 
     private static final ReentrantLock LOCK = new ReentrantLock();
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN);
-    private static final Pattern URL_PATTERN = Pattern.compile(IMAGE_URL_REGEX);
+    private static final Pattern IMAGE_URL_PATTERN = Pattern.compile(IMAGE_URL_REGEX);
 
     private static RssSaxHandler instance;
     private static AtomicBoolean isInitialized = new AtomicBoolean(false);
@@ -204,7 +204,7 @@ public final class RssSaxHandler extends DefaultHandler {
     }
 
     private String getImg(String content) {
-        Matcher matcher = URL_PATTERN.matcher(content);
+        Matcher matcher = IMAGE_URL_PATTERN.matcher(content);
         return matcher.find() ? matcher.group() : EMPTY_STRING;
     }
 

@@ -72,15 +72,15 @@ public class NewsDescriptionFragment extends Fragment {
     }
 
     private WebView getWebView(View view) {
-        WebView content = view.findViewById(R.id.content_news_content);
-        content.setWebViewClient(new WebViewClient());
-        content.setWebChromeClient(new WebChromeClient());
-        content.getSettings().setJavaScriptEnabled(true);
-        content.setOnTouchListener((v, event) -> onTouch(event));
-        return content;
+        WebView webView = view.findViewById(R.id.content_news_content);
+        webView.setWebViewClient(new WebViewClient());
+        webView.setWebChromeClient(new WebChromeClient());
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.setOnTouchListener(this::onTouch);
+        return webView;
     }
 
-    private boolean onTouch(MotionEvent event) {
+    private boolean onTouch(View v, MotionEvent event) {
         return event.getAction() == MotionEvent.ACTION_MOVE;
     }
 }
