@@ -7,10 +7,8 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
+import java.time.format.DateTimeParseException;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,12 +28,8 @@ public final class RssSaxHandler extends DefaultHandler {
     private static final String TAG_CONTENT = "encoded";
     private static final String TAG_CREATOR = "creator";
 
-    private static final ReentrantLock LOCK = new ReentrantLock();
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN);
     private static final Pattern IMAGE_URL_PATTERN = Pattern.compile(IMAGE_URL_REGEX);
-
-    private static RssSaxHandler instance;
-    private static AtomicBoolean isInitialized = new AtomicBoolean(false);
 
     private boolean isItem;
     private boolean isElement;
@@ -46,33 +40,18 @@ public final class RssSaxHandler extends DefaultHandler {
     private boolean isCreator;
     private boolean isDate;
 
-    private StringBuilder content;
-    private String title;
-    private String link;
-    private String date;
-    private String description;
-    private String creator;
+    private StringBuilder tempContent;
+    private String tempTitle;
+    private String tempLink;
+    private String tempDate;
+    private String tempDescription;
+    private String tempCreator;
 
-    private List<RssItem> rssItems;
+    private Collection<RssItem> rssItems;
 
-    static RssSaxHandler getInstance() {
-        if (!isInitialized.get()) {
-            LOCK.lock();
-            if (!isInitialized.get()) {
-                instance = new RssSaxHandler();
-                isInitialized.set(true);
-            }
-            LOCK.unlock();
-        }
-        return instance;
-    }
-
-    private RssSaxHandler() {
-    }
-
-    @Override
-    public void startDocument() {
-        rssItems = new ArrayList<>();
+    public RssSaxHandler(Collection<RssItem> collection) {
+        this.rssItems = collection;
+        tempContent = new StringBuilder();
     }
 
     @Override
@@ -88,30 +67,30 @@ public final class RssSaxHandler extends DefaultHandler {
             case TAG_TITLE:
                 if (!qName.contains(TAG_MEDIA)) {
                     isTitle = true;
-                    title = EMPTY_STRING;
+                    tempTitle = EMPTY_STRING;
                 }
                 break;
             case TAG_DESCRIPTION:
                 isDescription = true;
-                description = EMPTY_STRING;
+                tempDescription = EMPTY_STRING;
                 break;
             case TAG_LINK:
                 if (!qName.equalsIgnoreCase(TAG_ATOM_LINK)) {
                     isLink = true;
-                    link = EMPTY_STRING;
+                    tempLink = EMPTY_STRING;
                 }
                 break;
             case TAG_PUBLISH_DATE:
                 isDate = true;
-                date = EMPTY_STRING;
+                tempDate = EMPTY_STRING;
                 break;
             case TAG_CONTENT:
                 isContent = true;
-                content = new StringBuilder();
+                tempContent.setLength(0);
                 break;
             case TAG_CREATOR:
                 isCreator = true;
-                creator = EMPTY_STRING;
+                tempCreator = EMPTY_STRING;
                 break;
             default:
                 break;
@@ -126,13 +105,14 @@ public final class RssSaxHandler extends DefaultHandler {
         }
         switch (localName.toLowerCase()) {
             case TAG_ITEM:
-                rssItems.add(buildItem());
-                resetBufferVariables();
+                RssItem rssItem = buildItem();
+                rssItems.add(rssItem);
+                resetTempVariables();
                 break;
             case TAG_TITLE:
                 if (!qName.contains(TAG_MEDIA)) {
                     isTitle = false;
-                    title = removeNewLine(title);
+                    tempTitle = removeNewLine(tempTitle);
                 }
                 break;
             case TAG_LINK:
@@ -167,43 +147,43 @@ public final class RssSaxHandler extends DefaultHandler {
             isElement = false;
         }
         if (isTitle) {
-            title = title + buffer;
+            tempTitle = tempTitle + buffer;
         }
         if (isDescription) {
-            description = description + buffer;
+            tempDescription = tempDescription + buffer;
         }
         if (isLink) {
-            link = link + buffer;
+            tempLink = tempLink + buffer;
         }
         if (isContent) {
-            content = content.append(buffer);
+            tempContent = tempContent.append(buffer);
         }
         if (isCreator) {
-            creator = creator + buffer;
+            tempCreator = tempCreator + buffer;
         }
         if (isDate) {
-            date = date + buffer;
+            tempDate = tempDate + buffer;
         }
-    }
-
-    List<RssItem> getItems() {
-        return rssItems;
     }
 
     private RssItem buildItem() {
-        String stringContent = this.content.toString();
+        String text = this.tempContent.toString();
+        String content = getContent(text);
+        String image = getImage(text);
+        LocalDate date = getDate(tempDate);
+
         return RssItem.newBuilder()
-                .setTitle(title.trim())
-                .setContent(getContent(stringContent))
-                .setCreator(creator)
-                .setDescription(description)
-                .setImage(getImg(stringContent))
-                .setPublishDate(getDate(date))
-                .setLink(link)
+                .setTitle(tempTitle.trim())
+                .setContent(content)
+                .setCreator(tempCreator)
+                .setDescription(tempDescription)
+                .setImage(image)
+                .setPublishDate(date)
+                .setLink(tempLink)
                 .build();
     }
 
-    private String getImg(String content) {
+    private String getImage(String content) {
         Matcher matcher = IMAGE_URL_PATTERN.matcher(content);
         return matcher.find() ? matcher.group() : EMPTY_STRING;
     }
@@ -221,18 +201,18 @@ public final class RssSaxHandler extends DefaultHandler {
         LocalDate localDate;
         try {
             localDate = LocalDate.parse(dateString, DATE_TIME_FORMATTER);
-        } catch (Exception e) {
+        } catch (DateTimeParseException e) {
             localDate = LocalDate.of(1111, 11, 11);
         }
         return localDate;
     }
 
-    private void resetBufferVariables() {
-        title = EMPTY_STRING;
-        link = EMPTY_STRING;
-        date = EMPTY_STRING;
-        description = EMPTY_STRING;
-        content = new StringBuilder();
-        creator = EMPTY_STRING;
+    private void resetTempVariables() {
+        tempTitle = EMPTY_STRING;
+        tempLink = EMPTY_STRING;
+        tempDate = EMPTY_STRING;
+        tempDescription = EMPTY_STRING;
+        tempContent.setLength(0);
+        tempCreator = EMPTY_STRING;
     }
 }

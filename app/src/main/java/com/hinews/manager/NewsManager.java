@@ -3,7 +3,7 @@ package com.hinews.manager;
 import android.support.annotation.NonNull;
 
 import com.hinews.item.RssFeed;
-import com.hinews.parsing.RssConverterFactory;
+import com.hinews.converter.RssConverterFactory;
 import com.hinews.service.RssService;
 
 import java.util.Optional;
