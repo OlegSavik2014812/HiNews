@@ -16,21 +16,18 @@ import javax.xml.parsers.SAXParserFactory;
 
 public class RssSaxParser {
     public List<RssItem> parse(InputSource source) {
-        long start = System.currentTimeMillis();
         List<RssItem> list;
         try {
             SAXParserFactory parserFactory = SAXParserFactory.newInstance();
             SAXParser saxParser = parserFactory.newSAXParser();
             XMLReader xmlReader = saxParser.getXMLReader();
-            xmlReader.setContentHandler(new RssSaxHandler());
+            RssSaxHandler handler = new RssSaxHandler();
+            xmlReader.setContentHandler(handler);
             xmlReader.parse(source);
-            list = RssSaxHandler.getList();
+            list = handler.getList();
         } catch (ParserConfigurationException | SAXException | IOException e) {
             list = Collections.emptyList();
         }
-        long end = System.currentTimeMillis();
-        long l = end - start;
-        new Long(l);
         return list;
     }
 }

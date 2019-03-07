@@ -35,8 +35,10 @@ public final class RssSaxHandler extends DefaultHandler {
     private static final Pattern IMAGE_URL_PATTERN = Pattern.compile(IMAGE_URL_REGEX);
 
     private static boolean isContentUpdated = false;
+    private static List<RssItem> cachedItems;
+    private static LocalDateTime buildDateTime;
 
-    private boolean isPubDate;
+    private boolean isBuildDate;
     private boolean isItem;
     private boolean isElement;
     private boolean isTitle;
@@ -46,9 +48,6 @@ public final class RssSaxHandler extends DefaultHandler {
     private boolean isCreator;
     private boolean isDate;
 
-    private static List<RssItem> list;
-
-    private static LocalDateTime pubDateTime;
     private StringBuilder tempContent;
     private String tempTitle;
     private String tempLink;
@@ -67,7 +66,7 @@ public final class RssSaxHandler extends DefaultHandler {
         }
         isElement = true;
         if (localName.equalsIgnoreCase(TAG_BUILD_DATE)) {
-            isPubDate = true;
+            isBuildDate = true;
             return;
         }
         if (localName.equalsIgnoreCase(TAG_ITEM)) {
@@ -117,7 +116,7 @@ public final class RssSaxHandler extends DefaultHandler {
         }
         isElement = false;
         if (localName.equalsIgnoreCase(TAG_BUILD_DATE)) {
-            isPubDate = false;
+            isBuildDate = false;
         }
         if (!isItem) {
             return;
@@ -125,8 +124,13 @@ public final class RssSaxHandler extends DefaultHandler {
         switch (localName.toLowerCase()) {
             case TAG_ITEM:
                 RssItem rssItem = buildItem();
-                list.add(rssItem);
-                resetTempVariables();
+                cachedItems.add(rssItem);
+                tempTitle = EMPTY_STRING;
+                tempLink = EMPTY_STRING;
+                tempDate = EMPTY_STRING;
+                tempDescription = EMPTY_STRING;
+                tempContent.setLength(0);
+                tempCreator = EMPTY_STRING;
                 break;
             case TAG_TITLE:
                 if (!qName.contains(TAG_MEDIA)) {
@@ -161,8 +165,8 @@ public final class RssSaxHandler extends DefaultHandler {
         if (isContentUpdated) {
             return;
         }
-        if (isPubDate) {
-            initIsUpdated(LocalDateTime.parse(new String(ch, start, length), DATE_TIME_FORMATTER));
+        if (isBuildDate) {
+            setBuildDateTime(LocalDateTime.parse(new String(ch, start, length), DATE_TIME_FORMATTER));
         }
         if (!isItem) {
             return;
@@ -196,7 +200,6 @@ public final class RssSaxHandler extends DefaultHandler {
         String content = getContent(text);
         String image = getImage(text);
         LocalDate date = getDate(tempDate);
-
         return RssItem.newBuilder()
                 .setTitle(tempTitle.trim())
                 .setContent(content)
@@ -218,8 +221,8 @@ public final class RssSaxHandler extends DefaultHandler {
         return parts[1];
     }
 
-    private String removeNewLine(String s) {
-        return s != null ? s.replace(NEW_LINE, EMPTY_STRING) : EMPTY_STRING;
+    private String removeNewLine(String line) {
+        return line != null ? line.replace(NEW_LINE, EMPTY_STRING) : EMPTY_STRING;
     }
 
     private LocalDate getDate(String dateString) {
@@ -232,32 +235,23 @@ public final class RssSaxHandler extends DefaultHandler {
         return localDate;
     }
 
-    private void initIsUpdated(LocalDateTime updateTime) {
-        if (pubDateTime != null) {
-            if (pubDateTime.isEqual(updateTime)) {
+    private static void setBuildDateTime(LocalDateTime dateTime) {
+        if (buildDateTime != null) {
+            if (buildDateTime.isEqual(dateTime)) {
                 isContentUpdated = true;
             } else {
-                pubDateTime = updateTime;
-                list = new ArrayList<>();
+                buildDateTime = dateTime;
+                cachedItems = new ArrayList<>();
                 isContentUpdated = false;
             }
         } else {
-            pubDateTime = updateTime;
-            list = new ArrayList<>();
+            buildDateTime = dateTime;
+            cachedItems = new ArrayList<>();
             isContentUpdated = false;
         }
     }
 
-    private void resetTempVariables() {
-        tempTitle = EMPTY_STRING;
-        tempLink = EMPTY_STRING;
-        tempDate = EMPTY_STRING;
-        tempDescription = EMPTY_STRING;
-        tempContent.setLength(0);
-        tempCreator = EMPTY_STRING;
-    }
-
-    public static List<RssItem> getList() {
-        return list;
+    public List<RssItem> getList() {
+        return cachedItems;
     }
 }
