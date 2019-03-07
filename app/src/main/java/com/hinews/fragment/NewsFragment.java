@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import com.hinews.R;
 import com.hinews.adapter.NewsRecyclerViewAdapter;
 import com.hinews.item.RssItem;
-import com.hinews.manager.SortedNewsManager;
+import com.hinews.manager.NewsManager;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +41,7 @@ public class NewsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment, null);
         RecyclerView recyclerView = view.findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        List<RssItem> rssItems = SortedNewsManager.getPagePositionNews(pageNumber);
+        List<RssItem> rssItems = NewsManager.getInstance().getPagePositionNews(pageNumber);
         NewsRecyclerViewAdapter mHiNewsRecyclerViewAdapter = new NewsRecyclerViewAdapter(rssItems, getContext(), pageNumber);
         recyclerView.setAdapter(mHiNewsRecyclerViewAdapter);
         return view;

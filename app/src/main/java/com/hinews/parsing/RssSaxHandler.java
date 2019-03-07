@@ -6,9 +6,11 @@ import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,6 +20,7 @@ public final class RssSaxHandler extends DefaultHandler {
     private static final String NEW_LINE = "\n";
     private static final String EMPTY_STRING = "";
 
+    private static final String TAG_BUILD_DATE = "lastBuildDate";
     private static final String TAG_ITEM = "item";
     private static final String TAG_TITLE = "title";
     private static final String TAG_MEDIA = "media";
@@ -31,6 +34,9 @@ public final class RssSaxHandler extends DefaultHandler {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN);
     private static final Pattern IMAGE_URL_PATTERN = Pattern.compile(IMAGE_URL_REGEX);
 
+    private static boolean isContentUpdated = false;
+
+    private boolean isPubDate;
     private boolean isItem;
     private boolean isElement;
     private boolean isTitle;
@@ -40,6 +46,9 @@ public final class RssSaxHandler extends DefaultHandler {
     private boolean isCreator;
     private boolean isDate;
 
+    private static List<RssItem> list;
+
+    private static LocalDateTime pubDateTime;
     private StringBuilder tempContent;
     private String tempTitle;
     private String tempLink;
@@ -47,16 +56,20 @@ public final class RssSaxHandler extends DefaultHandler {
     private String tempDescription;
     private String tempCreator;
 
-    private Collection<RssItem> rssItems;
-
-    public RssSaxHandler(Collection<RssItem> collection) {
-        this.rssItems = collection;
+    public RssSaxHandler() {
         tempContent = new StringBuilder();
     }
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
+        if (isContentUpdated) {
+            return;
+        }
         isElement = true;
+        if (localName.equalsIgnoreCase(TAG_BUILD_DATE)) {
+            isPubDate = true;
+            return;
+        }
         if (localName.equalsIgnoreCase(TAG_ITEM)) {
             isItem = true;
         }
@@ -99,14 +112,20 @@ public final class RssSaxHandler extends DefaultHandler {
 
     @Override
     public void endElement(String uri, String localName, String qName) {
+        if (isContentUpdated) {
+            return;
+        }
         isElement = false;
+        if (localName.equalsIgnoreCase(TAG_BUILD_DATE)) {
+            isPubDate = false;
+        }
         if (!isItem) {
             return;
         }
         switch (localName.toLowerCase()) {
             case TAG_ITEM:
                 RssItem rssItem = buildItem();
-                rssItems.add(rssItem);
+                list.add(rssItem);
                 resetTempVariables();
                 break;
             case TAG_TITLE:
@@ -139,6 +158,12 @@ public final class RssSaxHandler extends DefaultHandler {
 
     @Override
     public void characters(char[] ch, int start, int length) {
+        if (isContentUpdated) {
+            return;
+        }
+        if (isPubDate) {
+            initIsUpdated(LocalDateTime.parse(new String(ch, start, length), DATE_TIME_FORMATTER));
+        }
         if (!isItem) {
             return;
         }
@@ -207,6 +232,22 @@ public final class RssSaxHandler extends DefaultHandler {
         return localDate;
     }
 
+    private void initIsUpdated(LocalDateTime updateTime) {
+        if (pubDateTime != null) {
+            if (pubDateTime.isEqual(updateTime)) {
+                isContentUpdated = true;
+            } else {
+                pubDateTime = updateTime;
+                list = new ArrayList<>();
+                isContentUpdated = false;
+            }
+        } else {
+            pubDateTime = updateTime;
+            list = new ArrayList<>();
+            isContentUpdated = false;
+        }
+    }
+
     private void resetTempVariables() {
         tempTitle = EMPTY_STRING;
         tempLink = EMPTY_STRING;
@@ -214,5 +255,9 @@ public final class RssSaxHandler extends DefaultHandler {
         tempDescription = EMPTY_STRING;
         tempContent.setLength(0);
         tempCreator = EMPTY_STRING;
+    }
+
+    public static List<RssItem> getList() {
+        return list;
     }
 }

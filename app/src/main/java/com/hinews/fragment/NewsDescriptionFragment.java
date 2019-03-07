@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import com.hinews.R;
 import com.hinews.item.RssItem;
-import com.hinews.manager.SortedNewsManager;
+import com.hinews.manager.NewsManager;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -43,7 +43,7 @@ public class NewsDescriptionFragment extends Fragment {
         super.onCreate(savedInstanceState);
         pageNumber = getArguments().getInt(EXTRA_POSITION);
         int mainPageNumber = getArguments().getInt(EXTRA_MAIN_PAGE_NUMBER);
-        rssItems = SortedNewsManager.getPagePositionNews(mainPageNumber);
+        rssItems = NewsManager.getInstance().getPagePositionNews(mainPageNumber);
     }
 
     @Override

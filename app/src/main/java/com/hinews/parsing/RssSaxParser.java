@@ -7,7 +7,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,17 +16,21 @@ import javax.xml.parsers.SAXParserFactory;
 
 public class RssSaxParser {
     public List<RssItem> parse(InputSource source) {
+        long start = System.currentTimeMillis();
         List<RssItem> list;
         try {
             SAXParserFactory parserFactory = SAXParserFactory.newInstance();
             SAXParser saxParser = parserFactory.newSAXParser();
             XMLReader xmlReader = saxParser.getXMLReader();
-            list = new ArrayList<>();
-            xmlReader.setContentHandler(new RssSaxHandler(list));
+            xmlReader.setContentHandler(new RssSaxHandler());
             xmlReader.parse(source);
+            list = RssSaxHandler.getList();
         } catch (ParserConfigurationException | SAXException | IOException e) {
             list = Collections.emptyList();
         }
+        long end = System.currentTimeMillis();
+        long l = end - start;
+        new Long(l);
         return list;
     }
 }
