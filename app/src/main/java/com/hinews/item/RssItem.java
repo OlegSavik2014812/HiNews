@@ -1,4 +1,4 @@
-package com.hinews.data.item;
+package com.hinews.item;
 
 import java.io.Serializable;
 import java.time.LocalDate;

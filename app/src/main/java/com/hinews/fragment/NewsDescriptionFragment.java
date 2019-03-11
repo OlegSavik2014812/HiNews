@@ -1,4 +1,4 @@
-package com.hinews.view.fragment;
+package com.hinews.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,8 +14,8 @@ import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import com.hinews.R;
-import com.hinews.data.item.RssItem;
-import com.hinews.data.manager.NewsManager;
+import com.hinews.item.RssItem;
+import com.hinews.manager.NewsManager;
 
 import java.util.List;
 import java.util.function.BiConsumer;

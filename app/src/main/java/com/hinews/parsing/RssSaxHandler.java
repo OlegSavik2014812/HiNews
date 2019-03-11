@@ -1,16 +1,14 @@
-package com.hinews.data.parsing;
+package com.hinews.parsing;
 
-import com.hinews.data.item.RssItem;
+import com.hinews.item.RssItem;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,7 +18,6 @@ public final class RssSaxHandler extends DefaultHandler {
     private static final String EMPTY_STRING = "";
     private static final String OPEN_P = "<p><img ";
     private static final String CLOSE_P = "/></p>";
-    private static final String TAG_BUILD_DATE = "lastBuildDate";
     private static final String TAG_ITEM = "item";
     private static final String TAG_TITLE = "title";
     private static final String TAG_MEDIA = "media";
@@ -30,15 +27,10 @@ public final class RssSaxHandler extends DefaultHandler {
     private static final String TAG_PUBLISH_DATE = "pubdate";
     private static final String TAG_CONTENT = "encoded";
     private static final String TAG_CREATOR = "creator";
-
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN);
     private static final Pattern IMAGE_URL_PATTERN = Pattern.compile(IMAGE_URL_REGEX);
 
-    private static boolean isContentUpdated = false;
-    private static List<RssItem> cachedItems;
-    private static LocalDateTime buildDateTime;
-
-    private boolean isBuildDate;
+    private Collection<RssItem> cachedItems;
     private boolean isItem;
     private boolean isElement;
     private boolean isTitle;
@@ -55,39 +47,14 @@ public final class RssSaxHandler extends DefaultHandler {
     private String tempDescription;
     private String tempCreator;
 
-    RssSaxHandler() {
+    RssSaxHandler(Collection<RssItem> collection) {
+        cachedItems = collection;
         tempContent = new StringBuilder();
-    }
-
-    private static boolean isUpdated(LocalDateTime dateTime) {
-        if (buildDateTime != null) {
-            if (buildDateTime.isEqual(dateTime)) {
-                isContentUpdated = true;
-                return true;
-            } else {
-                buildDateTime = dateTime;
-                cachedItems = new ArrayList<>();
-                isContentUpdated = false;
-                return false;
-            }
-        } else {
-            buildDateTime = dateTime;
-            cachedItems = new ArrayList<>();
-            isContentUpdated = false;
-            return false;
-        }
     }
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
-        if (isContentUpdated) {
-            return;
-        }
         isElement = true;
-        if (localName.equalsIgnoreCase(TAG_BUILD_DATE)) {
-            isBuildDate = true;
-            return;
-        }
         if (localName.equalsIgnoreCase(TAG_ITEM)) {
             isItem = true;
         }
@@ -130,13 +97,7 @@ public final class RssSaxHandler extends DefaultHandler {
 
     @Override
     public void endElement(String uri, String localName, String qName) {
-        if (isContentUpdated) {
-            return;
-        }
         isElement = false;
-        if (localName.equalsIgnoreCase(TAG_BUILD_DATE)) {
-            isBuildDate = false;
-        }
         if (!isItem) {
             return;
         }
@@ -178,12 +139,6 @@ public final class RssSaxHandler extends DefaultHandler {
 
     @Override
     public void characters(char[] ch, int start, int length) {
-        if (isContentUpdated) {
-            return;
-        }
-        if (isBuildDate && !isUpdated(LocalDateTime.parse(new String(ch, start, length), DATE_TIME_FORMATTER))) {
-            tempContent = new StringBuilder();
-        }
         if (!isItem) {
             return;
         }
@@ -247,9 +202,5 @@ public final class RssSaxHandler extends DefaultHandler {
             localDate = LocalDate.of(1111, 11, 11);
         }
         return localDate;
-    }
-
-    public List<RssItem> getList() {
-        return cachedItems;
     }
 }

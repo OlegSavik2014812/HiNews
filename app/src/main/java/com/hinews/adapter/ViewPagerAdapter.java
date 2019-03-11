@@ -1,10 +1,10 @@
-package com.hinews.view.adapter;
+package com.hinews.adapter;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.hinews.view.fragment.NewsFragment;
+import com.hinews.fragment.NewsFragment;
 
 public class ViewPagerAdapter extends FragmentPagerAdapter {
     private static final int LIST_SIZE = 3;

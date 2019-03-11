@@ -1,8 +1,9 @@
-package com.hinews.view.activity;
+package com.hinews.activity;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -10,14 +11,14 @@ import android.view.MenuItem;
 import android.widget.ViewSwitcher;
 
 import com.hinews.R;
-import com.hinews.view.adapter.ViewPagerAdapter;
-import com.hinews.data.manager.LoadRssNewsListener;
-import com.hinews.data.manager.NewsManager;
+import com.hinews.adapter.ViewPagerAdapter;
+import com.hinews.manager.NewsManager;
 
 public class MainActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private ViewSwitcher viewSwitcher;
     private ViewPagerAdapter viewPagerAdapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewSwitcher = findViewById(R.id.switcher);
+        swipeRefreshLayout = findViewById(R.id.swiperefresh);
+        swipeRefreshLayout.setOnRefreshListener(this::refresh);
 
         Toolbar toolbar = findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
@@ -34,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
 
         viewPager.setOffscreenPageLimit(3);
-        NewsManager.getInstance().init(new LoadRssNewsListener() {
+        NewsManager.getInstance().init(new NewsManager.LoadRssNewsListener() {
             @Override
             public void start() {
                 startProgress();
@@ -60,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onRefreshClick(MenuItem menuItem) {
-        NewsManager.getInstance().init(new LoadRssNewsListener() {
+        NewsManager.getInstance().init(new NewsManager.LoadRssNewsListener() {
             @Override
             public void start() {
                 startProgress();
@@ -75,6 +78,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void failure() {
                 stopProgress();
+            }
+        });
+    }
+
+    private void refresh() {
+        NewsManager.getInstance().init(new NewsManager.LoadRssNewsListener() {
+            @Override
+            public void success() {
+                viewPagerAdapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }

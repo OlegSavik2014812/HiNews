@@ -1,12 +1,12 @@
-package com.hinews.data.manager;
+package com.hinews.manager;
 
 import android.support.annotation.NonNull;
 import android.util.SparseArray;
 
-import com.hinews.data.converter.RssConverterFactory;
-import com.hinews.data.service.RssService;
-import com.hinews.data.item.RssFeed;
-import com.hinews.data.item.RssItem;
+import com.hinews.converter.RssConverterFactory;
+import com.hinews.item.RssFeed;
+import com.hinews.item.RssItem;
+import com.hinews.service.RssService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class NewsManager {
         return instance;
     }
 
-    public void load(final LoadRssNewsListener listener) {
+    public void init(final LoadRssNewsListener listener) {
         listener.start();
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -104,5 +104,16 @@ public class NewsManager {
                 otherList.add(item);
             }
         });
+    }
+
+    public interface LoadRssNewsListener {
+        default void start() {
+        }
+
+        default void success() {
+        }
+
+        default void failure() {
+        }
     }
 }
