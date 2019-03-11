@@ -53,11 +53,13 @@ public class AboutActivity extends AppCompatActivity {
         toolbar.setTitle(EMPTY_STRING);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-
         ViewPager viewPager = findViewById(R.id.viewpager);
         imageContent = findViewById(R.id.image_news_content);
         int position = getIntent().getIntExtra(EXTRA_POSITION, 0);
         int pageNumber = getIntent().getIntExtra(EXTRA_MAIN_PAGE_NUMBER, 0);
+        ViewPagerContentAdapter contentAdapter = new ViewPagerContentAdapter(getSupportFragmentManager(), rssItems, pageNumber);
+        viewPager.setAdapter(contentAdapter);
+        viewPager.setCurrentItem(position);
 
         rssItems = NewsManager.getInstance().getPagePositionNews(pageNumber);
         RssItem rssItem = rssItems.get(position);
@@ -68,9 +70,6 @@ public class AboutActivity extends AppCompatActivity {
                 .into(imageContent);
         message = rssItem.getLink();
 
-        ViewPagerContentAdapter contentAdapter = new ViewPagerContentAdapter(getSupportFragmentManager(), rssItems, pageNumber);
-        viewPager.setAdapter(contentAdapter);
-        viewPager.setCurrentItem(position);
 
         SimpleTarget<Bitmap> target = new SimpleTarget<Bitmap>() {
             @Override
@@ -107,7 +106,7 @@ public class AboutActivity extends AppCompatActivity {
     }
 
     public void onShareClick(MenuItem menuItem) {
-        NewsManager.getInstance().init(new LoadRssNewsListener() {
+        NewsManager.getInstance().load(new LoadRssNewsListener() {
             @Override
             public void success() {
                 Intent intent = new Intent(Intent.ACTION_SEND);

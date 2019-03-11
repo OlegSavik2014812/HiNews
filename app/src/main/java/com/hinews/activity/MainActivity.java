@@ -9,9 +9,9 @@ import android.support.v7.widget.Toolbar;
 import android.widget.ViewSwitcher;
 
 import com.hinews.R;
+import com.hinews.adapter.ViewPagerAdapter;
 import com.hinews.manager.LoadRssNewsListener;
 import com.hinews.manager.NewsManager;
-import com.hinews.adapter.ViewPagerAdapter;
 
 public class MainActivity extends AppCompatActivity {
     private ViewPager viewPager;
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
 
         viewPager.setOffscreenPageLimit(3);
-        NewsManager.getInstance().init(new LoadRssNewsListener() {
+        NewsManager.getInstance().load(new LoadRssNewsListener() {
             @Override
             public void start() {
                 startProgress();
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onRefresh() {
-        NewsManager.getInstance().init(new LoadRssNewsListener() {
+        NewsManager.getInstance().load(new LoadRssNewsListener() {
             @Override
             public void success() {
                 viewPagerAdapter.notifyDataSetChanged();

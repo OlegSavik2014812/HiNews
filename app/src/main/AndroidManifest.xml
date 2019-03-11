@@ -5,6 +5,7 @@
 
     <application
         android:allowBackup="true"
+        android:fullBackupContent="true"
         android:icon="@mipmap/rss"
         android:label="Hi-News"
         android:roundIcon="@mipmap/roundrss"

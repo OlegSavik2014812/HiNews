@@ -46,7 +46,7 @@ public class NewsManager {
         return instance;
     }
 
-    public void init(final LoadRssNewsListener listener) {
+    public void load(final LoadRssNewsListener listener) {
         listener.start();
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -81,12 +81,7 @@ public class NewsManager {
     }
 
     public List<RssItem> getPagePositionNews(int pagePosition) {
-        if (pagePosition == TODAY_NEWS_PAGE_POSITION ||
-                pagePosition == YESTERDAY_NEWS_PAGE_POSITION ||
-                pagePosition == OTHER_NEWS_PAGE_POSITION) {
-            return sortedNews.get(pagePosition);
-        }
-        return Collections.emptyList();
+        return Optional.ofNullable(sortedNews.get(pagePosition)).orElseGet(Collections::emptyList);
     }
 
     private void groupByDate(List<RssItem> list) {
