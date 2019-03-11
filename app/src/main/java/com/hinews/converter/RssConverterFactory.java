@@ -1,4 +1,4 @@
-package com.hinews.data.converter;
+package com.hinews.converter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;

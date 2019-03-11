@@ -1,12 +1,12 @@
-package com.hinews.data.manager;
+package com.hinews.manager;
 
 import android.support.annotation.NonNull;
 import android.util.SparseArray;
 
-import com.hinews.data.converter.RssConverterFactory;
-import com.hinews.data.service.RssService;
-import com.hinews.data.item.RssFeed;
-import com.hinews.data.item.RssItem;
+import com.hinews.converter.RssConverterFactory;
+import com.hinews.item.RssFeed;
+import com.hinews.item.RssItem;
+import com.hinews.service.RssService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -69,7 +69,7 @@ public class NewsManager {
                 Optional.of(response)
                         .map(Response::body)
                         .map(RssFeed::getItems)
-                        .ifPresent(NewsManager.this::groupByPagePosition);
+                        .ifPresent(NewsManager.this::groupByDate);
                 listener.success();
             }
 
@@ -89,7 +89,7 @@ public class NewsManager {
         return Collections.emptyList();
     }
 
-    private void groupByPagePosition(List<RssItem> list) {
+    private void groupByDate(List<RssItem> list) {
         sortedNews = new SparseArray<>();
         List<RssItem> todayList = new ArrayList<>();
         List<RssItem> yesterdayList = new ArrayList<>();

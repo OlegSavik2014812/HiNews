@@ -1,12 +1,13 @@
-package com.hinews.data.parsing;
+package com.hinews.parsing;
 
-import com.hinews.data.item.RssItem;
+import com.hinews.item.RssItem;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,10 +22,10 @@ public class RssSaxParser {
             SAXParserFactory parserFactory = SAXParserFactory.newInstance();
             SAXParser saxParser = parserFactory.newSAXParser();
             XMLReader xmlReader = saxParser.getXMLReader();
-            RssSaxHandler handler = new RssSaxHandler();
+            list = new ArrayList<>();
+            RssSaxHandler handler = new RssSaxHandler(list);
             xmlReader.setContentHandler(handler);
             xmlReader.parse(source);
-            list = handler.getList();
         } catch (ParserConfigurationException | SAXException | IOException e) {
             list = Collections.emptyList();
         }

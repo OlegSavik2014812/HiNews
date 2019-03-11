@@ -1,23 +1,23 @@
-package com.hinews.view.activity;
+package com.hinews.activity;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ViewSwitcher;
 
 import com.hinews.R;
-import com.hinews.view.adapter.ViewPagerAdapter;
-import com.hinews.data.manager.LoadRssNewsListener;
-import com.hinews.data.manager.NewsManager;
+import com.hinews.manager.LoadRssNewsListener;
+import com.hinews.manager.NewsManager;
+import com.hinews.adapter.ViewPagerAdapter;
 
 public class MainActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private ViewSwitcher viewSwitcher;
     private ViewPagerAdapter viewPagerAdapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +25,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewSwitcher = findViewById(R.id.switcher);
+
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setOnRefreshListener(this::onRefresh);
 
         Toolbar toolbar = findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
@@ -53,37 +56,21 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.refresh, menu);
-        return true;
-    }
-
-    public void onRefreshClick(MenuItem menuItem) {
-        NewsManager.getInstance().init(new LoadRssNewsListener() {
-            @Override
-            public void start() {
-                startProgress();
-            }
-
-            @Override
-            public void success() {
-                viewPagerAdapter.notifyDataSetChanged();
-                stopProgress();
-            }
-
-            @Override
-            public void failure() {
-                stopProgress();
-            }
-        });
-    }
-
     private void startProgress() {
         viewSwitcher.setDisplayedChild(0);
     }
 
     private void stopProgress() {
         viewSwitcher.setDisplayedChild(1);
+    }
+
+    private void onRefresh() {
+        NewsManager.getInstance().init(new LoadRssNewsListener() {
+            @Override
+            public void success() {
+                viewPagerAdapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
     }
 }

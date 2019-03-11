@@ -1,4 +1,4 @@
-package com.hinews.view.activity;
+package com.hinews.activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,10 +15,10 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.hinews.R;
-import com.hinews.view.adapter.ViewPagerContentAdapter;
-import com.hinews.data.item.RssItem;
-import com.hinews.data.manager.LoadRssNewsListener;
-import com.hinews.data.manager.NewsManager;
+import com.hinews.adapter.ViewPagerContentAdapter;
+import com.hinews.item.RssItem;
+import com.hinews.manager.LoadRssNewsListener;
+import com.hinews.manager.NewsManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -58,6 +58,7 @@ public class AboutActivity extends AppCompatActivity {
         imageContent = findViewById(R.id.image_news_content);
         int position = getIntent().getIntExtra(EXTRA_POSITION, 0);
         int pageNumber = getIntent().getIntExtra(EXTRA_MAIN_PAGE_NUMBER, 0);
+
         rssItems = NewsManager.getInstance().getPagePositionNews(pageNumber);
         RssItem rssItem = rssItems.get(position);
 

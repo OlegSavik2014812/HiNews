@@ -1,16 +1,14 @@
-package com.hinews.data.parsing;
+package com.hinews.parsing;
 
-import com.hinews.data.item.RssItem;
+import com.hinews.item.RssItem;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,9 +16,8 @@ public final class RssSaxHandler extends DefaultHandler {
     private static final String IMAGE_URL_REGEX = "\\b(https?|ftp|file):[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|](?:.jpg)|(?:.jpeg)|(?:.png)";
     private static final String DATE_PATTERN = "EEE, d MMM yyyy HH:mm:ss Z";
     private static final String EMPTY_STRING = "";
-    private static final String OPEN_P = "<p><img ";
-    private static final String CLOSE_P = "/></p>";
-    private static final String TAG_BUILD_DATE = "lastBuildDate";
+    private static final String OPEN_P_IMG = "<p><img ";
+    private static final String CLOSE_P_IMG = "/></p>";
     private static final String TAG_ITEM = "item";
     private static final String TAG_TITLE = "title";
     private static final String TAG_MEDIA = "media";
@@ -34,11 +31,6 @@ public final class RssSaxHandler extends DefaultHandler {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN);
     private static final Pattern IMAGE_URL_PATTERN = Pattern.compile(IMAGE_URL_REGEX);
 
-    private static boolean isContentUpdated = false;
-    private static List<RssItem> cachedItems;
-    private static LocalDateTime buildDateTime;
-
-    private boolean isBuildDate;
     private boolean isItem;
     private boolean isElement;
     private boolean isTitle;
@@ -54,40 +46,16 @@ public final class RssSaxHandler extends DefaultHandler {
     private String tempDate;
     private String tempDescription;
     private String tempCreator;
+    private Collection<RssItem> items;
 
-    RssSaxHandler() {
+    RssSaxHandler(Collection<RssItem> collection) {
+        items = collection;
         tempContent = new StringBuilder();
-    }
-
-    private static boolean isUpdated(LocalDateTime dateTime) {
-        if (buildDateTime != null) {
-            if (buildDateTime.isEqual(dateTime)) {
-                isContentUpdated = true;
-                return true;
-            } else {
-                buildDateTime = dateTime;
-                cachedItems = new ArrayList<>();
-                isContentUpdated = false;
-                return false;
-            }
-        } else {
-            buildDateTime = dateTime;
-            cachedItems = new ArrayList<>();
-            isContentUpdated = false;
-            return false;
-        }
     }
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
-        if (isContentUpdated) {
-            return;
-        }
         isElement = true;
-        if (localName.equalsIgnoreCase(TAG_BUILD_DATE)) {
-            isBuildDate = true;
-            return;
-        }
         if (localName.equalsIgnoreCase(TAG_ITEM)) {
             isItem = true;
         }
@@ -130,20 +98,14 @@ public final class RssSaxHandler extends DefaultHandler {
 
     @Override
     public void endElement(String uri, String localName, String qName) {
-        if (isContentUpdated) {
-            return;
-        }
         isElement = false;
-        if (localName.equalsIgnoreCase(TAG_BUILD_DATE)) {
-            isBuildDate = false;
-        }
         if (!isItem) {
             return;
         }
         switch (localName.toLowerCase()) {
             case TAG_ITEM:
                 RssItem rssItem = buildItem();
-                cachedItems.add(rssItem);
+                items.add(rssItem);
                 tempTitle = EMPTY_STRING;
                 tempLink = EMPTY_STRING;
                 tempDate = EMPTY_STRING;
@@ -178,12 +140,6 @@ public final class RssSaxHandler extends DefaultHandler {
 
     @Override
     public void characters(char[] ch, int start, int length) {
-        if (isContentUpdated) {
-            return;
-        }
-        if (isBuildDate && !isUpdated(LocalDateTime.parse(new String(ch, start, length), DATE_TIME_FORMATTER))) {
-            tempContent = new StringBuilder();
-        }
         if (!isItem) {
             return;
         }
@@ -233,8 +189,8 @@ public final class RssSaxHandler extends DefaultHandler {
     }
 
     private String getContent(String content) {
-        int previewImageStart = content.indexOf(OPEN_P);
-        int previewImageEnd = content.indexOf(CLOSE_P) + 7;
+        int previewImageStart = content.indexOf(OPEN_P_IMG);
+        int previewImageEnd = content.indexOf(CLOSE_P_IMG) + 7;
         String previewImage = content.substring(previewImageStart, previewImageEnd);
         return content.replaceFirst(previewImage, EMPTY_STRING);
     }
@@ -247,9 +203,5 @@ public final class RssSaxHandler extends DefaultHandler {
             localDate = LocalDate.of(1111, 11, 11);
         }
         return localDate;
-    }
-
-    public List<RssItem> getList() {
-        return cachedItems;
     }
 }

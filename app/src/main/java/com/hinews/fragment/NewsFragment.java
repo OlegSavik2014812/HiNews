@@ -1,4 +1,4 @@
-package com.hinews.view.fragment;
+package com.hinews.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,9 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.hinews.R;
-import com.hinews.view.adapter.NewsRecyclerViewAdapter;
-import com.hinews.data.item.RssItem;
-import com.hinews.data.manager.NewsManager;
+import com.hinews.adapter.NewsRecyclerViewAdapter;
+import com.hinews.item.RssItem;
+import com.hinews.manager.NewsManager;
 
 import java.util.List;
 import java.util.Optional;
