@@ -1,15 +1,16 @@
-package com.hinews.manager;
+package com.hinews.data.manager;
 
 import android.support.annotation.NonNull;
 import android.util.SparseArray;
 
-import com.hinews.converter.RssConverterFactory;
-import com.hinews.item.RssFeed;
-import com.hinews.item.RssItem;
-import com.hinews.service.RssService;
+import com.hinews.data.converter.RssConverterFactory;
+import com.hinews.data.service.RssService;
+import com.hinews.data.item.RssFeed;
+import com.hinews.data.item.RssItem;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -28,7 +29,7 @@ public class NewsManager {
     private static final int YESTERDAY_NEWS_PAGE_POSITION = 1;
     private static final int OTHER_NEWS_PAGE_POSITION = 2;
 
-    private SparseArray<List<RssItem>> sparseArray;
+    private SparseArray<List<RssItem>> sortedNews;
     private static final ReentrantLock LOCK = new ReentrantLock();
     private static AtomicBoolean isInitialized = new AtomicBoolean(false);
     private static NewsManager instance;
@@ -80,17 +81,22 @@ public class NewsManager {
     }
 
     public List<RssItem> getPagePositionNews(int pagePosition) {
-        return sparseArray.get(pagePosition);
+        if (pagePosition == TODAY_NEWS_PAGE_POSITION ||
+                pagePosition == YESTERDAY_NEWS_PAGE_POSITION ||
+                pagePosition == OTHER_NEWS_PAGE_POSITION) {
+            return sortedNews.get(pagePosition);
+        }
+        return Collections.emptyList();
     }
 
     private void groupByPagePosition(List<RssItem> list) {
-        sparseArray = new SparseArray<>();
+        sortedNews = new SparseArray<>();
         List<RssItem> todayList = new ArrayList<>();
         List<RssItem> yesterdayList = new ArrayList<>();
         List<RssItem> otherList = new ArrayList<>();
-        sparseArray.put(TODAY_NEWS_PAGE_POSITION, todayList);
-        sparseArray.put(YESTERDAY_NEWS_PAGE_POSITION, yesterdayList);
-        sparseArray.put(OTHER_NEWS_PAGE_POSITION, otherList);
+        sortedNews.put(TODAY_NEWS_PAGE_POSITION, todayList);
+        sortedNews.put(YESTERDAY_NEWS_PAGE_POSITION, yesterdayList);
+        sortedNews.put(OTHER_NEWS_PAGE_POSITION, otherList);
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.minusDays(1);
         list.forEach(item -> {
@@ -103,13 +109,5 @@ public class NewsManager {
                 otherList.add(item);
             }
         });
-    }
-
-    public interface LoadRssNewsListener {
-        void start();
-
-        void success();
-
-        void failure();
     }
 }

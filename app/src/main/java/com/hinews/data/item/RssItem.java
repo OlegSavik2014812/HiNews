@@ -1,4 +1,4 @@
-package com.hinews.item;
+package com.hinews.data.item;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -6,7 +6,7 @@ import java.time.LocalDate;
 public class RssItem implements Serializable {
     private String title;
     private String link;
-    private String previewImage;
+    private String previewImagePath;
     private LocalDate publishDate;
     private String description;
     private String content;
@@ -20,8 +20,8 @@ public class RssItem implements Serializable {
         return link;
     }
 
-    public String getPreviewImage() {
-        return previewImage;
+    public String getPreviewImagePath() {
+        return previewImagePath;
     }
 
     public LocalDate getPublishDate() {
@@ -58,8 +58,8 @@ public class RssItem implements Serializable {
             return this;
         }
 
-        public RssItemBuilder setImage(String image) {
-            RssItem.this.previewImage = image;
+        public RssItemBuilder setImagePath(String image) {
+            RssItem.this.previewImagePath = image;
             return this;
         }
 

@@ -1,4 +1,4 @@
-package com.hinews.fragment;
+package com.hinews.view.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,8 +14,8 @@ import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import com.hinews.R;
-import com.hinews.item.RssItem;
-import com.hinews.manager.NewsManager;
+import com.hinews.data.item.RssItem;
+import com.hinews.data.manager.NewsManager;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -76,11 +76,11 @@ public class NewsDescriptionFragment extends Fragment {
         webView.setWebViewClient(new WebViewClient());
         webView.setWebChromeClient(new WebChromeClient());
         webView.getSettings().setJavaScriptEnabled(true);
-        webView.setOnTouchListener(this::onTouch);
+        webView.setOnTouchListener((v, event) -> onTouch(event));
         return webView;
     }
 
-    private boolean onTouch(View v, MotionEvent event) {
+    private boolean onTouch(MotionEvent event) {
         return event.getAction() == MotionEvent.ACTION_MOVE;
     }
 }

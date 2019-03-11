@@ -1,10 +1,10 @@
-package com.hinews.converter;
+package com.hinews.data.converter;
 
 import android.support.annotation.NonNull;
 
-import com.hinews.item.RssFeed;
-import com.hinews.item.RssItem;
-import com.hinews.parsing.RssSaxParser;
+import com.hinews.data.item.RssFeed;
+import com.hinews.data.item.RssItem;
+import com.hinews.data.parsing.RssSaxParser;
 
 import org.xml.sax.InputSource;
 

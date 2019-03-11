@@ -1,4 +1,4 @@
-package com.hinews.activity;
+package com.hinews.view.activity;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -10,8 +10,9 @@ import android.view.MenuItem;
 import android.widget.ViewSwitcher;
 
 import com.hinews.R;
-import com.hinews.adapter.ViewPagerAdapter;
-import com.hinews.manager.NewsManager;
+import com.hinews.view.adapter.ViewPagerAdapter;
+import com.hinews.data.manager.LoadRssNewsListener;
+import com.hinews.data.manager.NewsManager;
 
 public class MainActivity extends AppCompatActivity {
     private ViewPager viewPager;
@@ -33,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
 
         viewPager.setOffscreenPageLimit(3);
-        NewsManager.getInstance().init(new NewsManager.LoadRssNewsListener() {
+        NewsManager.getInstance().init(new LoadRssNewsListener() {
             @Override
             public void start() {
                 startProgress();
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onRefreshClick(MenuItem menuItem) {
-        NewsManager.getInstance().init(new NewsManager.LoadRssNewsListener() {
+        NewsManager.getInstance().init(new LoadRssNewsListener() {
             @Override
             public void start() {
                 startProgress();
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void failure() {
-                startProgress();
+                stopProgress();
             }
         });
     }

@@ -1,6 +1,6 @@
-package com.hinews.parsing;
+package com.hinews.data.parsing;
 
-import com.hinews.item.RssItem;
+import com.hinews.data.item.RssItem;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;

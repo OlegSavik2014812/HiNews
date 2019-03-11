@@ -1,4 +1,4 @@
-package com.hinews.activity;
+package com.hinews.view.activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,9 +15,10 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.hinews.R;
-import com.hinews.adapter.ViewPagerContentAdapter;
-import com.hinews.item.RssItem;
-import com.hinews.manager.NewsManager;
+import com.hinews.view.adapter.ViewPagerContentAdapter;
+import com.hinews.data.item.RssItem;
+import com.hinews.data.manager.LoadRssNewsListener;
+import com.hinews.data.manager.NewsManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -61,7 +62,7 @@ public class AboutActivity extends AppCompatActivity {
         RssItem rssItem = rssItems.get(position);
 
         Glide.with(this)
-                .load(rssItem.getPreviewImage())
+                .load(rssItem.getPreviewImagePath())
                 .centerCrop()
                 .into(imageContent);
         message = rssItem.getLink();
@@ -86,7 +87,7 @@ public class AboutActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 Glide.with(AboutActivity.this)
-                        .load(rssItems.get(position).getPreviewImage())
+                        .load(rssItems.get(position).getPreviewImagePath())
                         .asBitmap()
                         .into(target);
 
@@ -105,12 +106,7 @@ public class AboutActivity extends AppCompatActivity {
     }
 
     public void onShareClick(MenuItem menuItem) {
-        NewsManager.getInstance().init(new NewsManager.LoadRssNewsListener() {
-            @Override
-            public void start() {
-                //unnecessary implementation
-            }
-
+        NewsManager.getInstance().init(new LoadRssNewsListener() {
             @Override
             public void success() {
                 Intent intent = new Intent(Intent.ACTION_SEND);
@@ -119,11 +115,6 @@ public class AboutActivity extends AppCompatActivity {
                 String chosenTitle = getString(R.string.chooser_title);
                 Intent chosenIntent = Intent.createChooser(intent, chosenTitle);
                 startActivity(chosenIntent);
-            }
-
-            @Override
-            public void failure() {
-                //unnecessary implementation
             }
         });
     }

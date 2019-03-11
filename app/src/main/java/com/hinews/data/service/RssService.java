@@ -1,6 +1,6 @@
-package com.hinews.service;
+package com.hinews.data.service;
 
-import com.hinews.item.RssFeed;
+import com.hinews.data.item.RssFeed;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
