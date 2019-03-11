@@ -1,4 +1,4 @@
-package com.hinews.manager;
+package com.hinews.data.manager;
 
 public interface LoadRssNewsListener {
     default void start() {

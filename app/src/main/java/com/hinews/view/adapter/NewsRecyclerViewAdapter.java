@@ -1,4 +1,4 @@
-package com.hinews.adapter;
+package com.hinews.view.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -12,8 +12,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.hinews.R;
-import com.hinews.activity.AboutActivity;
-import com.hinews.item.RssItem;
+import com.hinews.view.activity.AboutActivity;
+import com.hinews.data.item.RssItem;
 
 import java.util.List;
 

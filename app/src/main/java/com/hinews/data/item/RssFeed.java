@@ -1,4 +1,4 @@
-package com.hinews.item;
+package com.hinews.data.item;
 
 import java.util.Collections;
 import java.util.List;

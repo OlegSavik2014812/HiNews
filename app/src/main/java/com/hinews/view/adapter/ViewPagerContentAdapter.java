@@ -1,11 +1,11 @@
-package com.hinews.adapter;
+package com.hinews.view.adapter;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.hinews.fragment.NewsDescriptionFragment;
-import com.hinews.item.RssItem;
+import com.hinews.view.fragment.NewsDescriptionFragment;
+import com.hinews.data.item.RssItem;
 
 import java.util.List;
 
