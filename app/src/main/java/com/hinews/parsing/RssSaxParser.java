@@ -22,7 +22,7 @@ public class RssSaxParser {
             SAXParserFactory parserFactory = SAXParserFactory.newInstance();
             SAXParser saxParser = parserFactory.newSAXParser();
             XMLReader xmlReader = saxParser.getXMLReader();
-            list = new ArrayList<>();
+            list = new ArrayList<>(20);
             RssSaxHandler handler = new RssSaxHandler(list);
             xmlReader.setContentHandler(handler);
             xmlReader.parse(source);

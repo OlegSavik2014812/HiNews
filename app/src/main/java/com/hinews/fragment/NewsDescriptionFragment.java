@@ -18,6 +18,7 @@ import com.hinews.item.RssItem;
 import com.hinews.manager.NewsManager;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 public class NewsDescriptionFragment extends Fragment {
@@ -41,8 +42,9 @@ public class NewsDescriptionFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pageNumber = getArguments().getInt(EXTRA_POSITION);
-        int mainPageNumber = getArguments().getInt(EXTRA_MAIN_PAGE_NUMBER);
+        Bundle arguments = Objects.requireNonNull(getArguments());
+        pageNumber = arguments.getInt(EXTRA_POSITION);
+        int mainPageNumber = arguments.getInt(EXTRA_MAIN_PAGE_NUMBER);
         rssItems = NewsManager.getInstance().getPagePositionNews(mainPageNumber);
     }
 

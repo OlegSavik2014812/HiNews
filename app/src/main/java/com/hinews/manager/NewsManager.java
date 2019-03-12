@@ -29,7 +29,7 @@ public class NewsManager {
     private static final int YESTERDAY_NEWS_PAGE_POSITION = 1;
     private static final int OTHER_NEWS_PAGE_POSITION = 2;
 
-    private SparseArray<List<RssItem>> sortedNews;
+    private static SparseArray<List<RssItem>> sortedNews;
     private static final ReentrantLock LOCK = new ReentrantLock();
     private static AtomicBoolean isInitialized = new AtomicBoolean(false);
     private static NewsManager instance;
@@ -39,6 +39,7 @@ public class NewsManager {
             LOCK.lock();
             if (!isInitialized.get()) {
                 instance = new NewsManager();
+                sortedNews = new SparseArray<>();
                 isInitialized.set(true);
             }
             LOCK.unlock();
@@ -81,11 +82,15 @@ public class NewsManager {
     }
 
     public List<RssItem> getPagePositionNews(int pagePosition) {
-        return Optional.ofNullable(sortedNews.get(pagePosition)).orElseGet(Collections::emptyList);
+        if (pagePosition == TODAY_NEWS_PAGE_POSITION ||
+                pagePosition == YESTERDAY_NEWS_PAGE_POSITION ||
+                pagePosition == OTHER_NEWS_PAGE_POSITION) {
+            return sortedNews.get(pagePosition);
+        }
+        return Collections.emptyList();
     }
 
     private void groupByPagePosition(List<RssItem> list) {
-        sortedNews = new SparseArray<>();
         List<RssItem> todayList = new ArrayList<>();
         List<RssItem> yesterdayList = new ArrayList<>();
         List<RssItem> otherList = new ArrayList<>();
