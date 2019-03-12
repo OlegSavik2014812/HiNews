@@ -6,6 +6,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.ViewSwitcher;
 
 import com.hinews.R;
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void failure() {
+                Log.w("failure", "Failure on load main activity");
                 stopProgress();
             }
         });

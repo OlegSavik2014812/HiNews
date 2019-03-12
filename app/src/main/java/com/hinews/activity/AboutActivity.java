@@ -105,16 +105,11 @@ public class AboutActivity extends AppCompatActivity {
     }
 
     public void onShareClick(MenuItem menuItem) {
-        NewsManager.getInstance().init(new NewsManager.LoadRssNewsListener() {
-            @Override
-            public void success() {
-                Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setType(TYPE);
-                intent.putExtra(Intent.EXTRA_TEXT, message);
-                String chosenTitle = getString(R.string.chooser_title);
-                Intent chosenIntent = Intent.createChooser(intent, chosenTitle);
-                startActivity(chosenIntent);
-            }
-        });
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType(TYPE);
+        intent.putExtra(Intent.EXTRA_TEXT, message);
+        String chosenTitle = getString(R.string.chooser_title);
+        Intent chosenIntent = Intent.createChooser(intent, chosenTitle);
+        startActivity(chosenIntent);
     }
 }

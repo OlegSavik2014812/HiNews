@@ -1,5 +1,7 @@
 package com.hinews.parsing;
 
+import android.util.Log;
+
 import com.hinews.item.RssItem;
 
 import org.xml.sax.InputSource;
@@ -27,6 +29,7 @@ public class RssSaxParser {
             xmlReader.setContentHandler(handler);
             xmlReader.parse(source);
         } catch (ParserConfigurationException | SAXException | IOException e) {
+            Log.e("parsing", "exception occurred while parse xml", e);
             list = Collections.emptyList();
         }
         return list;
