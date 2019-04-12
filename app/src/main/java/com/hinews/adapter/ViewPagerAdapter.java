@@ -8,9 +8,9 @@ import com.hinews.fragment.NewsFragment;
 
 public class ViewPagerAdapter extends FragmentPagerAdapter {
     private static final int LIST_SIZE = 3;
-    private static final int TODAY_POSITION = 0;
-    private static final int YESTERDAY_POSITION = 1;
-    private static final int THIS_WEEK_POSITION = 2;
+    private static final int TODAY_NEWS_PAGE_POSITION = 0;
+    private static final int YESTERDAY_NEWS_PAGE_POSITION = 1;
+    private static final int OTHER_NEWS_PAGE_POSITION = 2;
     private static final String TODAY = "Today";
     private static final String YESTERDAY = "Yesterday";
     private static final String THIS_WEEK = "This week";
@@ -32,14 +32,14 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         switch (position) {
-            case TODAY_POSITION:
+            case TODAY_NEWS_PAGE_POSITION:
                 return TODAY;
-            case YESTERDAY_POSITION:
+            case YESTERDAY_NEWS_PAGE_POSITION:
                 return YESTERDAY;
-            case THIS_WEEK_POSITION:
+            case OTHER_NEWS_PAGE_POSITION:
                 return THIS_WEEK;
             default:
-                return super.getPageTitle(position);
+                return "Not defined";
         }
     }
 }

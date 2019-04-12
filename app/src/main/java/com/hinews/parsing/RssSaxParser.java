@@ -14,19 +14,18 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 public class RssSaxParser {
     public List<RssItem> parse(InputSource source) {
         List<RssItem> list;
         try {
-            SAXParserFactory parserFactory = SAXParserFactory.newInstance();
-            SAXParser saxParser = parserFactory.newSAXParser();
-            XMLReader xmlReader = saxParser.getXMLReader();
+            XMLReader xmlReader = SAXParserFactory
+                    .newInstance()
+                    .newSAXParser()
+                    .getXMLReader();
             list = new ArrayList<>(20);
-            RssSaxHandler handler = new RssSaxHandler(list);
-            xmlReader.setContentHandler(handler);
+            xmlReader.setContentHandler(new RssSaxHandler(list));
             xmlReader.parse(source);
         } catch (ParserConfigurationException | SAXException | IOException e) {
             Log.e("parsing", "exception occurred while parse xml", e);

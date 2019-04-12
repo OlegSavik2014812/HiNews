@@ -24,8 +24,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        init();
+    }
+
+    private void init() {
         viewSwitcher = findViewById(R.id.switcher);
+
         swipeRefreshLayout = findViewById(R.id.swiperefresh);
         swipeRefreshLayout.setOnRefreshListener(this::refresh);
         swipeRefreshLayout.setColorSchemeResources(
@@ -39,9 +43,10 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = findViewById(R.id.tab_layout_activity_main);
         viewPager = findViewById(R.id.main_activity_view_pager);
         tabLayout.setupWithViewPager(viewPager);
-
         viewPager.setOffscreenPageLimit(3);
-        manager.init(new NewsManager.LoadRssNewsListener() {
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+
+        manager.load(new NewsManager.LoadRssNewsListener() {
             @Override
             public void start() {
                 startProgress();
@@ -55,17 +60,31 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void failure() {
-                Log.w("failure", "Failure on load main activity");
+                Log.e("failure", "Failure on load main activity");
                 stopProgress();
             }
         });
     }
 
     private void refresh() {
-        manager.init(new NewsManager.LoadRssNewsListener() {
+        manager.load(new NewsManager.LoadRssNewsListener() {
+            @Override
+            public void start() {
+                swipeRefreshLayout.setRefreshing(true);
+                if (viewPager.getAdapter() == null) {
+                    init();
+                }
+            }
+
             @Override
             public void success() {
                 viewPagerAdapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+
+            @Override
+            public void failure() {
+                Log.e("failure", "Failure on refreshing main activity");
                 swipeRefreshLayout.setRefreshing(false);
             }
         });

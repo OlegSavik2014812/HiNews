@@ -42,8 +42,8 @@ public class NewsFragment extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         List<RssItem> rssItems = NewsManager.getInstance().getPagePositionNews(pageNumber);
-        NewsRecyclerViewAdapter mHiNewsRecyclerViewAdapter = new NewsRecyclerViewAdapter(rssItems, getContext(), pageNumber);
-        recyclerView.setAdapter(mHiNewsRecyclerViewAdapter);
+        NewsRecyclerViewAdapter recyclerViewAdapter = new NewsRecyclerViewAdapter(rssItems, getContext(), pageNumber);
+        recyclerView.setAdapter(recyclerViewAdapter);
         return view;
     }
 }

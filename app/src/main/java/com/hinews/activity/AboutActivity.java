@@ -2,7 +2,6 @@ package com.hinews.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -12,8 +11,6 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.hinews.R;
 import com.hinews.adapter.ViewPagerContentAdapter;
 import com.hinews.item.RssItem;
@@ -24,7 +21,7 @@ import java.util.Objects;
 
 public class AboutActivity extends AppCompatActivity {
     private static final String EMPTY_STRING = "";
-    private static final String TYPE = "text/plain";
+    private static final String TEXT_PLAIN_TYPE = "text/plain";
     private static final String EXTRA_POSITION = "item_position";
     private static final String EXTRA_MAIN_PAGE_NUMBER = "page_number";
     private ImageView imageContent;
@@ -32,10 +29,9 @@ public class AboutActivity extends AppCompatActivity {
     private String message;
 
     public static void start(Context context, int position, int pageNumber) {
-        Intent starter = new Intent(context, AboutActivity.class);
-        starter.putExtra(EXTRA_MAIN_PAGE_NUMBER, pageNumber);
-        starter.putExtra(EXTRA_POSITION, position);
-        context.startActivity(starter);
+        context.startActivity(new Intent(context, AboutActivity.class)
+                .putExtra(EXTRA_MAIN_PAGE_NUMBER, pageNumber)
+                .putExtra(EXTRA_POSITION, position));
     }
 
     @Override
@@ -48,6 +44,11 @@ public class AboutActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_aboutt);
+        int position = getIntent().getIntExtra(EXTRA_POSITION, 0);
+        int pageNumber = getIntent().getIntExtra(EXTRA_MAIN_PAGE_NUMBER, 0);
+        rssItems = NewsManager.getInstance().getPagePositionNews(pageNumber);
+        RssItem rssItem = rssItems.get(position);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(EMPTY_STRING);
         setSupportActionBar(toolbar);
@@ -55,10 +56,6 @@ public class AboutActivity extends AppCompatActivity {
 
         ViewPager viewPager = findViewById(R.id.viewpager);
         imageContent = findViewById(R.id.image_news_content);
-        int position = getIntent().getIntExtra(EXTRA_POSITION, 0);
-        int pageNumber = getIntent().getIntExtra(EXTRA_MAIN_PAGE_NUMBER, 0);
-        rssItems = NewsManager.getInstance().getPagePositionNews(pageNumber);
-        RssItem rssItem = rssItems.get(position);
 
         Glide.with(this)
                 .load(rssItem.getPreviewImagePath())
@@ -70,13 +67,6 @@ public class AboutActivity extends AppCompatActivity {
         viewPager.setAdapter(contentAdapter);
         viewPager.setCurrentItem(position);
 
-        SimpleTarget<Bitmap> target = new SimpleTarget<Bitmap>() {
-            @Override
-            public void onResourceReady(Bitmap bitmap, GlideAnimation glideAnimation) {
-                imageContent.setImageBitmap(bitmap);
-            }
-        };
-
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -85,11 +75,11 @@ public class AboutActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
+                String imagePath = rssItems.get(position).getPreviewImagePath();
                 Glide.with(AboutActivity.this)
-                        .load(rssItems.get(position).getPreviewImagePath())
-                        .asBitmap()
-                        .into(target);
-
+                        .load(imagePath)
+                        .fitCenter()
+                        .into(imageContent);
             }
 
             @Override
@@ -106,7 +96,7 @@ public class AboutActivity extends AppCompatActivity {
 
     public void onShareClick(MenuItem menuItem) {
         Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType(TYPE);
+        intent.setType(TEXT_PLAIN_TYPE);
         intent.putExtra(Intent.EXTRA_TEXT, message);
         String chosenTitle = getString(R.string.chooser_title);
         Intent chosenIntent = Intent.createChooser(intent, chosenTitle);

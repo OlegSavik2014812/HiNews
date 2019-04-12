@@ -37,6 +37,18 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerVi
             imageView = view.findViewById(R.id.image_news);
             creatorTextView = view.findViewById(R.id.creator_news);
         }
+
+        void bind(RssItem item, int position) {
+            titleTextView.setText(item.getTitle());
+            descriptionTextView.setText(Html.fromHtml(item.getDescription(), 0));
+            pubDateTextView.setText(item.getPublishDate().toString());
+            creatorTextView.setText(item.getCreator());
+            itemView.setOnClickListener(view -> AboutActivity.start(context, position, pageNumber));
+            Glide.with(itemView.getContext())
+                    .load(item.getPreviewImagePath())
+                    .centerCrop()
+                    .into(imageView);
+        }
     }
 
     public NewsRecyclerViewAdapter(List<RssItem> list, Context context, int pageNumber) {
@@ -54,18 +66,7 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerVi
 
     @Override
     public void onBindViewHolder(@NonNull HiNewsViewHolder holder, int position) {
-        RssItem item = list.get(position);
-        holder.titleTextView.setText(item.getTitle());
-        holder.descriptionTextView.setText(Html.fromHtml(item.getDescription(), 0));
-        holder.pubDateTextView.setText(item.getPublishDate().toString());
-        holder.creatorTextView.setText(item.getCreator());
-
-        Glide.with(holder.itemView.getContext())
-                .load(item.getPreviewImagePath())
-                .centerCrop()
-                .into(holder.imageView);
-
-        holder.itemView.setOnClickListener(view -> AboutActivity.start(context, position, pageNumber));
+        holder.bind(list.get(position), position);
     }
 
     @Override

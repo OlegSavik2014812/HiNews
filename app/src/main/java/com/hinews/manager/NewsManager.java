@@ -25,9 +25,9 @@ import retrofit2.Retrofit;
 
 public class NewsManager {
     private static final String BASE_URL = "https://hi-news.ru/";
-    private static final int TODAY_NEWS_PAGE_POSITION = 0;
-    private static final int YESTERDAY_NEWS_PAGE_POSITION = 1;
-    private static final int OTHER_NEWS_PAGE_POSITION = 2;
+    private static final int TODAY_NEWS_POSITION = 0;
+    private static final int YESTERDAY_NEWS_POSITION = 1;
+    private static final int OTHER_NEWS_POSITION = 2;
 
     private static SparseArray<List<RssItem>> sortedNews;
     private static final ReentrantLock LOCK = new ReentrantLock();
@@ -47,7 +47,7 @@ public class NewsManager {
         return instance;
     }
 
-    public void init(final LoadRssNewsListener listener) {
+    public void load(final LoadRssNewsListener listener) {
         listener.start();
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -82,28 +82,24 @@ public class NewsManager {
     }
 
     public List<RssItem> getPagePositionNews(int pagePosition) {
-        if (pagePosition == TODAY_NEWS_PAGE_POSITION ||
-                pagePosition == YESTERDAY_NEWS_PAGE_POSITION ||
-                pagePosition == OTHER_NEWS_PAGE_POSITION) {
-            return sortedNews.get(pagePosition);
-        }
-        return Collections.emptyList();
+        List<RssItem> rssItems = sortedNews.get(pagePosition);
+        return rssItems != null ? rssItems : Collections.emptyList();
     }
 
     private void groupByPagePosition(List<RssItem> list) {
         List<RssItem> todayList = new ArrayList<>();
         List<RssItem> yesterdayList = new ArrayList<>();
         List<RssItem> otherList = new ArrayList<>();
-        sortedNews.put(TODAY_NEWS_PAGE_POSITION, todayList);
-        sortedNews.put(YESTERDAY_NEWS_PAGE_POSITION, yesterdayList);
-        sortedNews.put(OTHER_NEWS_PAGE_POSITION, otherList);
+        sortedNews.put(TODAY_NEWS_POSITION, todayList);
+        sortedNews.put(YESTERDAY_NEWS_POSITION, yesterdayList);
+        sortedNews.put(OTHER_NEWS_POSITION, otherList);
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.minusDays(1);
         list.forEach(item -> {
             LocalDate publishDate = item.getPublishDate();
-            if (publishDate.isEqual(today)) {
+            if (today.isEqual(publishDate)) {
                 todayList.add(item);
-            } else if (publishDate.isEqual(yesterday)) {
+            } else if (yesterday.isEqual(publishDate)) {
                 yesterdayList.add(item);
             } else {
                 otherList.add(item);
