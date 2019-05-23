@@ -54,7 +54,6 @@ public class AboutActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
-        ViewPager viewPager = findViewById(R.id.viewpager);
         imageContent = findViewById(R.id.image_news_content);
 
         Glide.with(this)
@@ -64,9 +63,10 @@ public class AboutActivity extends AppCompatActivity {
         message = rssItem.getLink();
 
         ViewPagerContentAdapter contentAdapter = new ViewPagerContentAdapter(getSupportFragmentManager(), rssItems, pageNumber);
+
+        ViewPager viewPager = findViewById(R.id.viewpager);
         viewPager.setAdapter(contentAdapter);
         viewPager.setCurrentItem(position);
-
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {

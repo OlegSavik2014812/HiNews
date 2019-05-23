@@ -14,6 +14,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     private static final String TODAY = "Today";
     private static final String YESTERDAY = "Yesterday";
     private static final String THIS_WEEK = "This week";
+    private static final String NOT_DEFINED = "Not defined";
 
     public ViewPagerAdapter(FragmentManager fragmentManager) {
         super(fragmentManager);
@@ -39,7 +40,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
             case OTHER_NEWS_PAGE_POSITION:
                 return THIS_WEEK;
             default:
-                return "Not defined";
+                return NOT_DEFINED;
         }
     }
 }

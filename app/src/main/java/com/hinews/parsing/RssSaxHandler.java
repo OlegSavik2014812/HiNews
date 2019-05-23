@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class RssSaxHandler extends DefaultHandler {
-    private static final String IMG_TAG_REGEX = "<img\\s[^>]*?src\\s*=\\s*['\\\"]([^'\\\"]*?)['\\\"][^>]*?>";
+    private static final String IMG_TAG_REGEX = "<img\\s[^>]*?src\\s*=\\s*['\"]([^'\"]*?)['\"][^>]*?>";
     private static final String IMAGE_URL_REGEX = "(http(s?):)([/|.|\\w|\\s|-])*\\.(?:jpg|gif|png|jpeg)";
     private static final String DATE_PATTERN = "EEE, d MMM yyyy HH:mm:ss Z";
     private static final String EMPTY_STRING = "";
@@ -27,9 +27,7 @@ public final class RssSaxHandler extends DefaultHandler {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN);
     private Pattern imgTagPattern;
     private Pattern imageUrlPattern;
-
     private Collection<RssItem> rssItems;
-
     private boolean isItem;
     private boolean isTitle;
     private boolean isDescription;
@@ -37,7 +35,6 @@ public final class RssSaxHandler extends DefaultHandler {
     private boolean isContent;
     private boolean isCreator;
     private boolean isDate;
-
     private StringBuilder tempContent;
     private String tempTitle;
     private String tempLink;
@@ -61,7 +58,7 @@ public final class RssSaxHandler extends DefaultHandler {
         if (!isItem) {
             return;
         }
-        setFlags(localName.toLowerCase(), true);
+        setItemFieldFlags(localName.toLowerCase(), true);
     }
 
     @Override
@@ -70,11 +67,17 @@ public final class RssSaxHandler extends DefaultHandler {
             return;
         }
         if (TAG_ITEM.equalsIgnoreCase(localName)) {
-            rssItems.add(buildItem());
+            isItem = false;
+            String content = tempContent.toString();
+            String imagePath = getImagePath(content);
+            String formattedContent = getContent(content);
+            LocalDate date = getDate(tempDate);
+            RssItem rssItem = RssItem.newBuilder().setTitle(tempTitle).setContent(formattedContent).setCreator(tempCreator).setDescription(tempDescription).setImagePath(imagePath).setPublishDate(date).setLink(tempLink).build();
+            rssItems.add(rssItem);
             resetTemps();
             return;
         }
-        setFlags(localName.toLowerCase(), false);
+        setItemFieldFlags(localName.toLowerCase(), false);
     }
 
     @Override
@@ -103,8 +106,8 @@ public final class RssSaxHandler extends DefaultHandler {
         }
     }
 
-    private void setFlags(String localName, boolean condition) {
-        switch (localName) {
+    private void setItemFieldFlags(String tagName, boolean condition) {
+        switch (tagName) {
             case TAG_TITLE:
                 isTitle = condition;
                 break;
@@ -135,22 +138,6 @@ public final class RssSaxHandler extends DefaultHandler {
         tempDescription = EMPTY_STRING;
         tempCreator = EMPTY_STRING;
         tempContent.setLength(0);
-    }
-
-    private RssItem buildItem() {
-        String content = tempContent.toString();
-        String imagePath = getImagePath(content);
-        String formattedContent = getContent(content);
-        LocalDate date = getDate(tempDate);
-        return RssItem.newBuilder()
-                .setTitle(tempTitle)
-                .setContent(formattedContent)
-                .setCreator(tempCreator)
-                .setDescription(tempDescription)
-                .setImagePath(imagePath)
-                .setPublishDate(date)
-                .setLink(tempLink)
-                .build();
     }
 
     private String getImagePath(String content) {
